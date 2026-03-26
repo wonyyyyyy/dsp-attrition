@@ -4,37 +4,114 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Employee Attrition App{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
     <style>
+      :root {
+        --brand: #1f5cff;
+        --brand-strong: #1746c6;
+        --ink: #0f172a;
+        --muted: #475569;
+        --surface: #ffffff;
+        --surface-soft: #f8fbff;
+        --border-soft: #d9e4f5;
+        --page-grad-1: #f7fafc;
+        --page-grad-2: #eef4ff;
+      }
+
       body {
-        padding-top: 56px;
+        font-family: "Manrope", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 0%, #dbeafe 0%, transparent 30%),
+          radial-gradient(circle at 85% 8%, #e2e8f0 0%, transparent 26%),
+          linear-gradient(160deg, var(--page-grad-1), var(--page-grad-2));
+        min-height: 100vh;
+        padding-top: 78px;
       }
-      .dashboard-container {
-        padding: 20px;
-      }
+
       .iframe-wrapper {
         position: relative;
-        padding-bottom: 56.25%;
+        padding-bottom: 58%;
         height: 0;
         overflow: hidden;
+        border-radius: 1rem;
       }
+
       .iframe-wrapper iframe {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        border: 0;
+        border: 1px solid var(--border-soft);
+        border-radius: 1rem;
+      }
+
+      .navbar {
+        background: rgba(15, 23, 42, 0.92) !important;
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      }
+
+      .navbar-brand {
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .nav-link {
+        font-weight: 600;
+        border-radius: 0.6rem;
+        padding: 0.45rem 0.8rem !important;
+        color: rgba(241, 245, 249, 0.85) !important;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        color: #fff !important;
+        background: rgba(30, 64, 175, 0.35);
+      }
+
+      .app-shell {
+        margin-bottom: 2rem;
+      }
+
+      .surface-card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 1rem;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+      }
+
+      .text-muted {
+        color: var(--muted) !important;
+      }
+
+      .btn-primary {
+        background: var(--brand);
+        border-color: var(--brand);
+      }
+
+      .btn-primary:hover,
+      .btn-primary:focus {
+        background: var(--brand-strong);
+        border-color: var(--brand-strong);
       }
     </style>
   </head>
+
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="/">Jaya Jaya Maju</a>
+        <a class="navbar-brand" href="/">DS-HAKIM</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -45,18 +122,32 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
             <li class="nav-item">
-              <a class="nav-link" href="/dashboard">Dashboard Analitik</a>
+              <a
+                class="nav-link {% if request.path == '/' %}active{% endif %}"
+                href="/"
+                >Home</a
+              >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/predict">Prediksi Attrition</a>
+              <a
+                class="nav-link {% if request.path == '/dashboard' %}active{% endif %}"
+                href="/dashboard"
+                >Dashboard Analitik</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/predict' %}active{% endif %}"
+                href="/predict"
+                >Prediksi Attrition</a
+              >
             </li>
           </ul>
         </div>
       </div>
     </nav>
-    <main class="container mt-4">{% block content %}{% endblock %}</main>
+    <main class="container app-shell">{% block content %}{% endblock %}</main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

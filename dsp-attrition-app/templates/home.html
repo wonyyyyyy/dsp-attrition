@@ -1,15 +1,28 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
-%}
-<div class="p-5 mb-4 bg-light rounded-3">
-  <div class="container-fluid py-5">
-    <h1 class="display-5 fw-bold">Selamat Datang di Jaya Jaya Maju</h1>
-    <p class="col-md-8 fs-4">
-      Aplikasi ini dibuat untuk membantu mengidentifikasi faktor-faktor yang
-      mempengaruhi attrition karyawan dan memprediksi apakah karyawan tertentu
-      berisiko meninggalkan perusahaan.
-    </p>
-    <a href="/dashboard" class="btn btn-primary btn-lg">Lihat Dashboard</a>
-    <a href="/predict" class="btn btn-secondary btn-lg">Coba Prediksi</a>
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="surface-card p-4 p-md-5 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <span class="badge text-bg-primary mb-3 px-3 py-2">Human Capital Intelligence</span>
+      <h1 class="display-5 fw-bold mb-3">Employee Attrition Analytics Platform</h1>
+      <p class="text-muted fs-5 mb-4">
+        Platform ini membantu tim HR menganalisis faktor utama attrition dan memprediksi risiko keluar karyawan
+        secara cepat, konsisten, dan berbasis data.
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="/dashboard" class="btn btn-primary btn-lg">Lihat Dashboard</a>
+        <a href="/predict" class="btn btn-outline-dark btn-lg">Coba Prediksi</a>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="surface-card p-4 h-100" style="background: linear-gradient(165deg, #f8fbff, #eef4ff);">
+        <h5 class="fw-bold mb-3">Value Utama</h5>
+        <p class="text-muted mb-2">1. Monitoring risiko attrition secara menyeluruh.</p>
+        <p class="text-muted mb-2">2. Identifikasi driver attrition paling signifikan.</p>
+        <p class="text-muted mb-0">3. Dukungan pengambilan keputusan retensi SDM.</p>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

@@ -1,11 +1,21 @@
-{% extends "base.html" %} {% block title %}Dashboard Analitik{% endblock %} {% block content %}
-<h2 class="mb-4">Laporan Analitik Karyawan</h2>
-<div class="dashboard-container card shadow-sm">
-    <div class="iframe-wrapper">
-        <iframe src="https://lookerstudio.google.com/embed/reporting/6aa437f5-36c3-4fd3-a677-4e765d895fe1/page/gDlrF" frameborder="0" style="border: 0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+{% extends "base.html" %}
+{% block title %}Dashboard Analitik{% endblock %}
+{% block content %}
+<section class="surface-card p-4 p-md-5">
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+      <h2 class="mb-2 fw-bold">Laporan Analitik Karyawan</h2>
+      <p class="text-muted mb-0">
+        Ringkasan metrik attrition untuk membantu evaluasi pola dan perencanaan retensi karyawan.
+      </p>
     </div>
-</div>
-<p class="text-muted mt-2">
-    Note: To set up your own Looker dashboard, export the CSV to Google Sheets, connect to Looker Studio, and paste the embed iframe code here.
+    <a href="/predict" class="btn btn-outline-primary">Ke Halaman Prediksi</a>
+  </div>
+  <div class="iframe-wrapper">
+    <iframe src="https://lookerstudio.google.com/embed/reporting/6aa437f5-36c3-4fd3-a677-4e765d895fe1/page/gDlrF" frameborder="0" style="border: 0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+  </div>
+</section>
+<p class="text-muted mt-3 mb-0">
+  Catatan: Jika ingin memakai dashboard Anda sendiri, ekspor CSV ke Google Sheets lalu sambungkan ke Looker Studio.
 </p>
 {% endblock %}

@@ -221,6 +221,7 @@ def home():
 
 
 @app.route('/healthz')
+@app.route('/healtz')
 def healthz():
     if MODEL_LOAD_ERROR:
         return {

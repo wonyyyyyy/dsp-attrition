@@ -2,15 +2,22 @@
 {% block title %}Prediksi Attrition{% endblock %}
 {% block content %}
 <style>
+  .section-card {
+    background: #ffffff;
+    border: 1px solid #d9e4f5;
+    border-radius: 1rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+  }
+
   .paste-panel {
-    background: linear-gradient(135deg, #f8f9fa, #eef3ff);
-    border: 1px solid #dbe4ff;
+    background: linear-gradient(155deg, #f8fbff, #ecf2ff);
+    border: 1px solid #d3e1ff;
   }
 
   .field-card {
-    border: 1px solid #e9ecef;
-    border-radius: 0.75rem;
-    padding: 1rem;
+    border: 1px solid #d9e4f5;
+    border-radius: 1rem;
+    padding: 1.25rem;
     background: #fff;
   }
 
@@ -20,8 +27,8 @@
 </style>
 
 <div class="d-flex flex-column gap-4">
-  <div>
-    <h2 class="mb-2">Prediksi Attrition Karyawan</h2>
+  <div class="section-card p-4 p-md-5">
+    <h2 class="mb-2 fw-bold">Prediksi Attrition Karyawan</h2>
     <p class="text-muted mb-0">
       Paste satu baris data sesuai urutan kolom dataset asli. Field yang tidak dipakai model akan diabaikan otomatis.
     </p>
@@ -29,7 +36,7 @@
 
   {% if result %}
   <div
-    class="alert {% if result == 'Attrition' %}alert-danger{% else %}alert-success{% endif %} mb-0"
+    class="alert {% if result == 'Attrition' %}alert-danger{% else %}alert-success{% endif %} mb-0 section-card"
     role="alert"
   >
     <h4 class="alert-heading mb-1">Hasil Prediksi: {{ result }}</h4>
@@ -42,7 +49,7 @@
   {% endif %}
 
   <form method="POST" action="/predict" class="d-flex flex-column gap-4">
-    <div class="card shadow-sm paste-panel">
+    <div class="section-card paste-panel">
       <div class="card-body">
         <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
           <div>
@@ -114,7 +121,7 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100">Prediksi</button>
+    <button type="submit" class="btn btn-primary btn-lg w-100">Prediksi</button>
   </form>
 </div>
 
