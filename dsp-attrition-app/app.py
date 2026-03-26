@@ -6,11 +6,56 @@ load_dotenv()
 from model_util import load_artifacts, predict_attrition
 
 app = Flask(__name__)
-model, scaler, label_encoders, feature_names = load_artifacts()
-CATEGORICAL_OPTIONS = {
-    name: list(encoder.classes_)
-    for name, encoder in label_encoders.items()
-}
+model = None
+scaler = None
+label_encoders = {}
+feature_names = []
+MODEL_LOAD_ERROR = None
+CATEGORICAL_OPTIONS = {}
+IGNORED_COLUMNS = []
+NUMERIC_FEATURES = set()
+COLUMN_VARIANTS = []
+FORM_FIELDS = []
+
+
+def ensure_model_loaded():
+    global model, scaler, label_encoders, feature_names, MODEL_LOAD_ERROR
+    if model is not None and scaler is not None and feature_names:
+        return
+
+    try:
+        model, scaler, label_encoders, feature_names = load_artifacts()
+        MODEL_LOAD_ERROR = None
+        refresh_model_metadata()
+    except Exception as exc:
+        MODEL_LOAD_ERROR = str(exc)
+        model = None
+        scaler = None
+        label_encoders = {}
+        feature_names = []
+        refresh_model_metadata()
+
+
+def refresh_model_metadata():
+    global CATEGORICAL_OPTIONS, IGNORED_COLUMNS, NUMERIC_FEATURES, COLUMN_VARIANTS, FORM_FIELDS
+    CATEGORICAL_OPTIONS = {
+        name: list(encoder.classes_)
+        for name, encoder in label_encoders.items()
+    }
+    IGNORED_COLUMNS = [col for col in DATASET_COLUMNS if col not in feature_names]
+    NUMERIC_FEATURES = {name for name in feature_names if name not in label_encoders}
+    COLUMN_VARIANTS = [
+        ('dataset asli', DATASET_COLUMNS),
+        ('tanpa EmployeeId', DATASET_COLUMNS[1:]),
+        ('tanpa Attrition', [col for col in DATASET_COLUMNS if col != 'Attrition']),
+        (
+            'tanpa EmployeeId dan Attrition',
+            [col for col in DATASET_COLUMNS if col not in {'EmployeeId', 'Attrition'}],
+        ),
+        ('field aktif model', feature_names),
+    ]
+    FORM_FIELDS = build_form_fields()
+
 
 DATASET_COLUMNS = [
     'EmployeeId',
@@ -49,18 +94,6 @@ DATASET_COLUMNS = [
     'YearsSinceLastPromotion',
     'YearsWithCurrManager',
 ]
-IGNORED_COLUMNS = [col for col in DATASET_COLUMNS if col not in feature_names]
-NUMERIC_FEATURES = {name for name in feature_names if name not in label_encoders}
-COLUMN_VARIANTS = [
-    ('dataset asli', DATASET_COLUMNS),
-    ('tanpa EmployeeId', DATASET_COLUMNS[1:]),
-    ('tanpa Attrition', [col for col in DATASET_COLUMNS if col != 'Attrition']),
-    (
-        'tanpa EmployeeId dan Attrition',
-        [col for col in DATASET_COLUMNS if col not in {'EmployeeId', 'Attrition'}],
-    ),
-    ('field aktif model', feature_names),
-]
 
 
 def build_form_fields():
@@ -83,7 +116,7 @@ def build_form_fields():
     return fields
 
 
-FORM_FIELDS = build_form_fields()
+ensure_model_loaded()
 
 
 def tokenize_pasted_row(raw_text):
@@ -181,14 +214,39 @@ def build_template_context(**overrides):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    try:
+        return render_template('home.html')
+    except Exception:
+        return "Service is running", 200
+
+
+@app.route('/healthz')
+def healthz():
+    if MODEL_LOAD_ERROR:
+        return {
+            "status": "degraded",
+            "model_loaded": False,
+            "error": MODEL_LOAD_ERROR,
+        }, 200
+    return {"status": "ok", "model_loaded": True}, 200
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard_view.html')
+    try:
+        return render_template('dashboard_view.html')
+    except Exception:
+        return "Dashboard unavailable", 200
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
+    ensure_model_loaded()
+    if model is None:
+        return render_template(
+            'predict_view.html',
+            **build_template_context(
+                paste_error=f"Model belum siap: {MODEL_LOAD_ERROR}",
+            )
+        )
     form_values = {
         field['name']: request.form.get(field['name'], '').strip()
         for field in FORM_FIELDS
