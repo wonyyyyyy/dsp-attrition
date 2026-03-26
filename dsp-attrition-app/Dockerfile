@@ -21,4 +21,4 @@ COPY . .
 EXPOSE 8000
 
 # Run Flask dengan port dinamis dari Railway/Render
-CMD gunicorn -b 0.0.0.0:${PORT:-8000} app:app
+CMD gunicorn --timeout ${GUNICORN_TIMEOUT:-120} -b 0.0.0.0:${PORT:-8000} app:app

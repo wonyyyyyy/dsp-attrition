@@ -164,11 +164,21 @@
   </form>
 </div>
 
+<script id="predict-page-data" type="application/json">
+  {{ {
+    "datasetColumns": dataset_columns,
+    "activeColumns": active_columns,
+    "categoricalOptions": categorical_options,
+    "numericFields": numeric_fields
+  } | tojson }}
+</script>
+
 <script>
-  const datasetColumns = {{ dataset_columns | tojson }};
-  const activeColumns = {{ active_columns | tojson }};
-  const categoricalOptions = {{ categorical_options | tojson }};
-  const numericFields = new Set({{ numeric_fields | tojson }});
+  const predictPageData = JSON.parse(document.getElementById("predict-page-data").textContent);
+  const datasetColumns = predictPageData.datasetColumns;
+  const activeColumns = predictPageData.activeColumns;
+  const categoricalOptions = predictPageData.categoricalOptions;
+  const numericFields = new Set(predictPageData.numericFields);
   const pastedRowField = document.getElementById("pasted_row");
   const pasteStatus = document.getElementById("paste-status");
   const fillButton = document.getElementById("fill-from-paste");

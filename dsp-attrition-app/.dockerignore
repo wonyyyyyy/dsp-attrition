@@ -14,3 +14,5 @@ htmlcov/
 *.pkl
 *.csv
 !employee_data_predicted_dashboard.csv
+!models/
+!models/*.pkl

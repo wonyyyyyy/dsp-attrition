@@ -19,9 +19,13 @@ COLUMN_VARIANTS = []
 FORM_FIELDS = []
 
 
+def model_is_loaded():
+    return model is not None and scaler is not None and bool(feature_names)
+
+
 def ensure_model_loaded():
     global model, scaler, label_encoders, feature_names, MODEL_LOAD_ERROR
-    if model is not None and scaler is not None and feature_names:
+    if model_is_loaded():
         return
 
     try:
@@ -115,10 +119,6 @@ def build_form_fields():
                 'options': [],
             })
     return fields
-
-
-ensure_model_loaded()
-
 
 def tokenize_pasted_row(raw_text):
     if not raw_text:
@@ -226,13 +226,15 @@ def home():
 @app.route('/healthz')
 @app.route('/healtz')
 def healthz():
+    if model_is_loaded():
+        return {"status": "ok", "model_loaded": True}, 200
     if MODEL_LOAD_ERROR:
         return {
             "status": "degraded",
             "model_loaded": False,
             "error": MODEL_LOAD_ERROR,
         }, 200
-    return {"status": "ok", "model_loaded": True}, 200
+    return {"status": "ok", "model_loaded": False, "lazy_load": True}, 200
 
 @app.route('/dashboard')
 def dashboard():
