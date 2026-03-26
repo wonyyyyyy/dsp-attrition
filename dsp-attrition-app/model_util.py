@@ -41,19 +41,22 @@ def _run_id_from_uri(model_uri):
             return match.group(1)
 
     if model_uri.startswith("models:/"):
-        client = mlflow.tracking.MlflowClient()
-        parts = model_uri.replace("models:/", "", 1).split("/")
-        if len(parts) < 2:
+        try:
+            client = mlflow.tracking.MlflowClient()
+            parts = model_uri.replace("models:/", "", 1).split("/")
+            if len(parts) < 2:
+                return ""
+
+            model_name, version_or_stage = parts[0], parts[1]
+            if version_or_stage.isdigit():
+                model_version = client.get_model_version(model_name, version_or_stage)
+                return model_version.run_id
+
+            latest = client.get_latest_versions(model_name, stages=[version_or_stage])
+            if latest:
+                return latest[0].run_id
+        except Exception:
             return ""
-
-        model_name, version_or_stage = parts[0], parts[1]
-        if version_or_stage.isdigit():
-            model_version = client.get_model_version(model_name, version_or_stage)
-            return model_version.run_id
-
-        latest = client.get_latest_versions(model_name, stages=[version_or_stage])
-        if latest:
-            return latest[0].run_id
 
     return os.getenv("MLFLOW_RUN_ID", "").strip()
 
@@ -124,21 +127,23 @@ def _load_from_local():
 
 def load_artifacts():
     source = os.getenv("MODEL_SOURCE", "auto").strip().lower()
+    mlflow_error = None
 
     if source in {"auto", "mlflow"}:
         try:
             return _load_from_mlflow()
         except Exception as exc:
-            if source == "mlflow":
-                raise RuntimeError(f"Gagal load artifacts dari MLflow: {exc}") from exc
+            mlflow_error = exc
             print(f"Warning: MLflow load failed, fallback ke local models. Detail: {exc}")
 
     try:
         return _load_from_local()
     except FileNotFoundError as exc:
-        raise RuntimeError(
-            "Artifacts tidak ditemukan di MLflow maupun local folder models."
-        ) from exc
+        if mlflow_error is not None:
+            raise RuntimeError(
+                "Artifacts tidak bisa dimuat dari MLflow, dan fallback local juga gagal."
+            ) from mlflow_error
+        raise RuntimeError("Artifacts tidak ditemukan di local folder models.") from exc
 
 def predict_attrition(df_input, model, scaler, label_encoders):
     df = df_input.copy()
