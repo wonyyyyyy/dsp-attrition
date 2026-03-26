@@ -16,5 +16,5 @@ COPY . .
 # Expose port untuk Render
 EXPOSE 8000
 
-# Run Flask
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
+# Run Flask dengan port dinamis dari Railway/Render
+CMD gunicorn -b 0.0.0.0:${PORT:-8000} app:app
