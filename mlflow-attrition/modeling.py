@@ -1,77 +1,146 @@
 import os
-import pandas as pd
+import tempfile
 import warnings
+
+import joblib
 import mlflow
 import mlflow.sklearn
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.model_selection import train_test_split
-from xgboost import XGBClassifier
+import pandas as pd
+from dotenv import load_dotenv
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from xgboost import XGBClassifier
 
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
-# 1. Load Data
-df = pd.read_csv('data/data_clean.csv')
 
-X = df.drop(columns=['Attrition'])
-y = df['Attrition'].astype(int)
+def configure_mlflow():
+    load_dotenv()
 
-# 2. Preprocessing
-drop_cols = ['EmployeeCount', 'StandardHours', 'Over18', 'EmployeeId']
-X.drop(columns=[col for col in drop_cols if col in X.columns], inplace=True)
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+    if tracking_uri:
+        mlflow.set_tracking_uri(tracking_uri)
 
-cat_cols = X.select_dtypes(include=['object', 'string']).columns.tolist()
+    experiment_name = os.getenv("MLFLOW_EXPERIMENT_NAME", "Attrition_Prediction_Experiment")
+    run_name = os.getenv("MLFLOW_RUN_NAME", "XGBoost_Run")
+    registered_model_name = os.getenv("MLFLOW_REGISTERED_MODEL_NAME", "").strip()
 
-for col in cat_cols:
-    le = LabelEncoder()
-    X[col] = le.fit_transform(X[col])
+    mlflow.set_experiment(experiment_name)
+    return run_name, registered_model_name
 
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
 
-# 3. Splitting
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42, stratify=y)
+def preprocess_data(df):
+    X = df.drop(columns=["Attrition"]).copy()
+    y = df["Attrition"].astype(int)
 
-# 4. MLFlow Tracking Setup
-mlflow.set_experiment("Attrition_Prediction_Experiment")
+    drop_cols = ["EmployeeCount", "StandardHours", "Over18", "EmployeeId"]
+    X.drop(columns=[col for col in drop_cols if col in X.columns], inplace=True)
 
-# Start an MLFlow run
-with mlflow.start_run(run_name="XGBoost_Run"):
-    # Define hyperparameters
+    cat_cols = X.select_dtypes(include=["object", "string"]).columns.tolist()
+    label_encoders = {}
+    for col in cat_cols:
+        encoder = LabelEncoder()
+        X[col] = encoder.fit_transform(X[col])
+        label_encoders[col] = encoder
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    return X, X_scaled, y, scaler, label_encoders, drop_cols, cat_cols
+
+
+def log_preprocessing_artifacts(scaler, label_encoders, feature_names, drop_cols, cat_cols):
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        scaler_path = os.path.join(tmp_dir, "scaler.pkl")
+        encoders_path = os.path.join(tmp_dir, "label_encoders.pkl")
+        features_path = os.path.join(tmp_dir, "feature_names.pkl")
+        metadata_path = os.path.join(tmp_dir, "preprocessing_metadata.json")
+
+        joblib.dump(scaler, scaler_path)
+        joblib.dump(label_encoders, encoders_path)
+        joblib.dump(feature_names, features_path)
+
+        metadata = {
+            "drop_columns": drop_cols,
+            "categorical_columns": cat_cols,
+            "feature_names": feature_names,
+        }
+        pd.Series(metadata).to_json(metadata_path, indent=2)
+
+        mlflow.log_artifact(scaler_path, artifact_path="artifacts")
+        mlflow.log_artifact(encoders_path, artifact_path="artifacts")
+        mlflow.log_artifact(features_path, artifact_path="artifacts")
+        mlflow.log_artifact(metadata_path, artifact_path="artifacts")
+
+
+def main():
+    run_name, registered_model_name = configure_mlflow()
+
+    df = pd.read_csv("data/data_clean.csv")
+    X, X_scaled, y, scaler, label_encoders, drop_cols, cat_cols = preprocess_data(df)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
+    )
+
     params = {
         "n_estimators": 200,
         "max_depth": 5,
         "learning_rate": 0.1,
         "random_state": 42,
         "use_label_encoder": False,
-        "eval_metric": "logloss"
+        "eval_metric": "logloss",
     }
 
-    # Log Parameters
-    mlflow.log_params(params)
+    with mlflow.start_run(run_name=run_name) as run:
+        mlflow.log_params(params)
+        mlflow.set_tag("pipeline", "xgboost + label_encoder + standard_scaler")
 
-    # Train Model
-    model = XGBClassifier(**params)
-    model.fit(X_train, y_train)
+        model = XGBClassifier(**params)
+        model.fit(X_train, y_train)
 
-    # Predict
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]
+        y_pred = model.predict(X_test)
+        y_proba = model.predict_proba(X_test)[:, 1]
 
-    # Metrics
-    acc = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    auc = roc_auc_score(y_test, y_proba)
+        metrics = {
+            "accuracy": accuracy_score(y_test, y_pred),
+            "f1_score": f1_score(y_test, y_pred),
+            "roc_auc": roc_auc_score(y_test, y_proba),
+        }
+        mlflow.log_metrics(metrics)
 
-    # Log Metrics
-    mlflow.log_metric("accuracy", acc)
-    mlflow.log_metric("f1_score", f1)
-    mlflow.log_metric("roc_auc", auc)
+        mlflow.sklearn.log_model(model, artifact_path="model")
+        log_preprocessing_artifacts(
+            scaler=scaler,
+            label_encoders=label_encoders,
+            feature_names=X.columns.tolist(),
+            drop_cols=drop_cols,
+            cat_cols=cat_cols,
+        )
 
-    # Log Model
-    mlflow.sklearn.log_model(model, "model")
+        run_id = run.info.run_id
+        print(f"Run completed: {run_id}")
+        print(
+            f"Metrics: Accuracy={metrics['accuracy']:.4f}, "
+            f"F1={metrics['f1_score']:.4f}, AUC={metrics['roc_auc']:.4f}"
+        )
+        print(f"Model URI: runs:/{run_id}/model")
 
-    print(f"Run completed. Metrics: Accuracy={acc:.4f}, F1={f1:.4f}, AUC={auc:.4f}")
-    
-    # If the user sets credentials (MLFLOW_TRACKING_URI, MLFLOW_TRACKING_USERNAME, MLFLOW_TRACKING_PASSWORD),
-    # this script will seamlessly track to remote DagsHub. Otherwise, it logs locally to ./mlruns.
+        if registered_model_name:
+            registered = mlflow.register_model(
+                model_uri=f"runs:/{run_id}/model",
+                name=registered_model_name,
+            )
+            print(
+                f"Registered model: {registered_model_name} "
+                f"(version {registered.version})"
+            )
+
+
+if __name__ == "__main__":
+    main()
