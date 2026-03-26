@@ -18,13 +18,30 @@
       :root {
         --brand: #1f5cff;
         --brand-strong: #1746c6;
+        --brand-soft: #e8f0ff;
         --ink: #0f172a;
         --muted: #475569;
         --surface: #ffffff;
         --surface-soft: #f8fbff;
+        --surface-muted: #f1f5f9;
         --border-soft: #d9e4f5;
+        --border-strong: #c5d3ea;
         --page-grad-1: #f7fafc;
         --page-grad-2: #eef4ff;
+        --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.07);
+        --shadow-focus: 0 0 0 0.2rem rgba(31, 92, 255, 0.15);
+        --radius-lg: 1.4rem;
+        --radius-md: 1rem;
+        --space-1: 0.5rem;
+        --space-2: 0.75rem;
+        --space-3: 1rem;
+        --space-4: 1.5rem;
+        --space-5: 2rem;
+        --space-6: 3rem;
+      }
+
+      html {
+        scroll-behavior: smooth;
       }
 
       body {
@@ -35,15 +52,26 @@
           radial-gradient(circle at 85% 8%, #e2e8f0 0%, transparent 26%),
           linear-gradient(160deg, var(--page-grad-1), var(--page-grad-2));
         min-height: 100vh;
-        padding-top: 78px;
+        margin: 0;
+        padding-top: 84px;
+      }
+
+      a {
+        text-decoration: none;
+        transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .container {
+        max-width: 1180px;
       }
 
       .iframe-wrapper {
         position: relative;
-        padding-bottom: 58%;
+        padding-bottom: 60%;
         height: 0;
         overflow: hidden;
-        border-radius: 1rem;
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, #f9fbff, #edf3ff);
       }
 
       .iframe-wrapper iframe {
@@ -53,7 +81,7 @@
         width: 100%;
         height: 100%;
         border: 1px solid var(--border-soft);
-        border-radius: 1rem;
+        border-radius: var(--radius-md);
       }
 
       .navbar {
@@ -67,10 +95,14 @@
         letter-spacing: 0.2px;
       }
 
+      .navbar .container {
+        min-height: 68px;
+      }
+
       .nav-link {
         font-weight: 600;
         border-radius: 0.6rem;
-        padding: 0.45rem 0.8rem !important;
+        padding: 0.55rem 0.95rem !important;
         color: rgba(241, 245, 249, 0.85) !important;
       }
 
@@ -81,18 +113,145 @@
       }
 
       .app-shell {
-        margin-bottom: 2rem;
+        padding: var(--space-5) 0 var(--space-6);
       }
 
       .surface-card {
         background: var(--surface);
         border: 1px solid var(--border-soft);
-        border-radius: 1rem;
-        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
       }
 
-      .text-muted {
-        color: var(--muted) !important;
+      .surface-accent {
+        background:
+          radial-gradient(circle at top right, rgba(31, 92, 255, 0.12), transparent 26%),
+          linear-gradient(180deg, #ffffff, #f7faff);
+      }
+
+      .subtle-panel {
+        background: linear-gradient(180deg, #ffffff, var(--surface-soft));
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+        height: 100%;
+      }
+
+      .page-stack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+
+      .page-section {
+        padding: clamp(1.35rem, 2vw, 2.25rem);
+      }
+
+      .eyebrow,
+      .panel-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        color: var(--brand-strong);
+        background: rgba(31, 92, 255, 0.08);
+        border: 1px solid rgba(31, 92, 255, 0.14);
+        border-radius: 999px;
+        padding: 0.55rem 0.9rem;
+      }
+
+      .panel-meta {
+        color: var(--muted);
+      }
+
+      .hero-title,
+      .section-title {
+        font-weight: 800;
+        line-height: 1.08;
+        margin-bottom: 0.85rem;
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 4vw, 3.35rem);
+        max-width: 12ch;
+      }
+
+      .section-title {
+        font-size: clamp(1.65rem, 3vw, 2.25rem);
+      }
+
+      .hero-copy,
+      .section-copy {
+        font-size: 1.02rem;
+        line-height: 1.8;
+        max-width: 68ch;
+      }
+
+      .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+      }
+
+      .feature-card h3,
+      .feature-card h4 {
+        font-weight: 700;
+      }
+
+      .info-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: var(--space-3);
+      }
+
+      .info-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--border-soft);
+        color: var(--muted);
+      }
+
+      .info-list li:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+      }
+
+      .info-list strong {
+        color: var(--ink);
+        font-weight: 800;
+        text-align: right;
+      }
+
+      .app-alert {
+        border-width: 1px;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-soft);
+        padding: 1rem 1.25rem;
+      }
+
+      .app-alert .alert-heading {
+        font-weight: 800;
+      }
+
+      .btn {
+        border-radius: 0.9rem;
+        font-weight: 700;
+        padding: 0.82rem 1.2rem;
+      }
+
+      .btn-lg {
+        padding: 0.95rem 1.5rem;
       }
 
       .btn-primary {
@@ -104,6 +263,120 @@
       .btn-primary:focus {
         background: var(--brand-strong);
         border-color: var(--brand-strong);
+      }
+
+      .btn-outline-primary {
+        border-color: var(--brand);
+        color: var(--brand);
+      }
+
+      .btn-outline-primary:hover,
+      .btn-outline-primary:focus {
+        background: var(--brand);
+        border-color: var(--brand);
+      }
+
+      .badge {
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .form-label {
+        margin-bottom: 0.55rem;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .form-control,
+      .form-select {
+        min-height: 50px;
+        border: 1px solid var(--border-strong);
+        border-radius: 0.9rem;
+        padding: 0.8rem 0.95rem;
+        background: #fff;
+      }
+
+      textarea.form-control {
+        min-height: 190px;
+        resize: vertical;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: rgba(31, 92, 255, 0.45);
+        box-shadow: var(--shadow-focus);
+      }
+
+      .field-shell {
+        background: linear-gradient(180deg, #ffffff, #f9fbff);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+        height: 100%;
+      }
+
+      .form-hint,
+      .status-text {
+        min-height: 1.5rem;
+      }
+
+      .text-muted {
+        color: var(--muted) !important;
+      }
+
+      code {
+        color: var(--brand-strong);
+        background: var(--brand-soft);
+        border-radius: 0.45rem;
+        padding: 0.12rem 0.4rem;
+      }
+
+      .metric-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.9rem;
+        border-radius: 999px;
+        background: var(--surface-muted);
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .text-balance {
+        text-wrap: balance;
+      }
+
+      @media (max-width: 991.98px) {
+        .app-shell {
+          padding: var(--space-4) 0 var(--space-5);
+        }
+
+        .iframe-wrapper {
+          padding-bottom: 72%;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        body {
+          padding-top: 78px;
+        }
+
+        .navbar .container {
+          min-height: auto;
+        }
+
+        .page-section {
+          padding: 1.2rem;
+        }
+
+        .action-row .btn,
+        .action-row a {
+          width: 100%;
+        }
+
+        .iframe-wrapper {
+          padding-bottom: 86%;
+        }
       }
     </style>
   </head>

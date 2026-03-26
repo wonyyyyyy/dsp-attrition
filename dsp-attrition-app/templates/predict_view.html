@@ -1,42 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Prediksi Attrition{% endblock %}
 {% block content %}
-<style>
-  .section-card {
-    background: #ffffff;
-    border: 1px solid #d9e4f5;
-    border-radius: 1rem;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
-  }
-
-  .paste-panel {
-    background: linear-gradient(155deg, #f8fbff, #ecf2ff);
-    border: 1px solid #d3e1ff;
-  }
-
-  .field-card {
-    border: 1px solid #d9e4f5;
-    border-radius: 1rem;
-    padding: 1.25rem;
-    background: #fff;
-  }
-
-  .status-text {
-    min-height: 1.5rem;
-  }
-</style>
-
-<div class="d-flex flex-column gap-4">
-  <div class="section-card p-4 p-md-5">
-    <h2 class="mb-2 fw-bold">Prediksi Attrition Karyawan</h2>
-    <p class="text-muted mb-0">
-      Paste satu baris data sesuai urutan kolom dataset asli. Field yang tidak dipakai model akan diabaikan otomatis.
-    </p>
-  </div>
+<div class="page-stack">
+  <section class="surface-card surface-accent page-section">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-8">
+        <span class="eyebrow mb-3">Prediksi Attrition</span>
+        <h1 class="section-title text-balance">Form Prediksi Karyawan</h1>
+        <p class="section-copy text-muted mb-0">
+          Paste satu baris data sesuai urutan kolom dataset asli atau isi field secara manual. Semua elemen halaman
+          sudah dirapikan agar proses input terasa lebih jelas dan tidak padat.
+        </p>
+      </div>
+      <div class="col-lg-4">
+        <div class="subtle-panel">
+          <p class="panel-meta mb-3">Ringkasan Input</p>
+          <ul class="info-list">
+            <li>
+              <span>Kolom dataset referensi</span>
+              <strong>{{ dataset_columns | length }}</strong>
+            </li>
+            <li>
+              <span>Field aktif model</span>
+              <strong>{{ active_columns | length }}</strong>
+            </li>
+            <li>
+              <span>Kolom diabaikan</span>
+              <strong>{{ ignored_columns | length }}</strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
   {% if result %}
   <div
-    class="alert {% if result == 'Attrition' %}alert-danger{% else %}alert-success{% endif %} mb-0 section-card"
+    class="alert app-alert {% if result == 'Attrition' %}alert-danger{% else %}alert-success{% endif %} mb-0"
     role="alert"
   >
     <h4 class="alert-heading mb-1">Hasil Prediksi: {{ result }}</h4>
@@ -45,83 +45,122 @@
   {% endif %}
 
   {% if paste_error %}
-  <div class="alert alert-warning mb-0" role="alert">{{ paste_error }}</div>
+  <div class="alert app-alert alert-warning mb-0" role="alert">{{ paste_error }}</div>
   {% endif %}
 
-  <form method="POST" action="/predict" class="d-flex flex-column gap-4">
-    <div class="section-card paste-panel">
-      <div class="card-body">
-        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
-          <div>
-            <h5 class="mb-1">Paste Satu Baris Data</h5>
-            <p class="text-muted mb-0">
-              Mendukung dataset asli, versi tanpa <code>EmployeeId</code>, tanpa <code>Attrition</code>, atau langsung field aktif model.
+  {% if save_status %}
+  <div class="alert app-alert alert-info mb-0" role="alert">{{ save_status }}</div>
+  {% endif %}
+
+  {% if save_error %}
+  <div class="alert app-alert alert-secondary mb-0" role="alert">{{ save_error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/predict" class="page-stack">
+    <div class="row g-4">
+      <div class="col-xl-8">
+        <section class="surface-card page-section h-100">
+          <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+            <div>
+              <p class="panel-meta mb-2">Paste Data</p>
+              <h2 class="h4 fw-bold mb-2">Isi otomatis dari satu baris data</h2>
+              <p class="text-muted mb-0">
+                Mendukung dataset asli, versi tanpa <code>EmployeeId</code>, tanpa <code>Attrition</code>, atau langsung field aktif model.
+              </p>
+            </div>
+            <span class="metric-chip">Autofill Siap Pakai</span>
+          </div>
+
+          <label for="pasted_row" class="form-label">Data mentah</label>
+          <textarea
+            id="pasted_row"
+            name="pasted_row"
+            class="form-control"
+            rows="8"
+            placeholder="Tempel data di sini, lalu field akan terisi otomatis"
+          >{{ pasted_row }}</textarea>
+
+          <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-3">
+            <button type="button" id="fill-from-paste" class="btn btn-outline-primary">
+              Isi Form Otomatis
+            </button>
+            <div id="paste-status" class="status-text small text-muted">
+              Urutan kolom referensi: {{ dataset_columns | join(' | ') }}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-xl-4">
+        <section class="surface-card page-section h-100">
+          <p class="panel-meta mb-3">Metadata Form</p>
+          <div class="subtle-panel mb-3">
+            <h3 class="h6 fw-bold mb-2">Kolom yang diabaikan model</h3>
+            <p class="text-muted small mb-0">{{ ignored_columns | join(', ') }}</p>
+          </div>
+          <div class="subtle-panel">
+            <h3 class="h6 fw-bold mb-2">Format yang diterima</h3>
+            <p class="text-muted small mb-0">
+              Dataset penuh, tanpa <code>EmployeeId</code>, tanpa <code>Attrition</code>, atau field aktif model.
             </p>
           </div>
-          <div class="text-muted small">
-            Kolom diabaikan: {{ ignored_columns | join(', ') }}
-          </div>
-        </div>
-
-        <label for="pasted_row" class="form-label">Data mentah</label>
-        <textarea
-          id="pasted_row"
-          name="pasted_row"
-          class="form-control"
-          rows="8"
-          placeholder="Tempel data di sini, lalu field akan terisi otomatis"
-        >{{ pasted_row }}</textarea>
-
-        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mt-3">
-          <button type="button" id="fill-from-paste" class="btn btn-outline-primary">
-            Isi Form Otomatis
-          </button>
-          <div id="paste-status" class="status-text small text-muted">
-            Urutan kolom referensi: {{ dataset_columns | join(' | ') }}
-          </div>
-        </div>
+        </section>
       </div>
     </div>
 
-    <div class="field-card shadow-sm">
-      <div class="row">
+    <section class="surface-card page-section">
+      <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+        <div>
+          <p class="panel-meta mb-2">Field Model</p>
+          <h2 class="h4 fw-bold mb-2">Lengkapi seluruh input prediksi</h2>
+          <p class="text-muted mb-0">
+            Semua field wajib diisi. Susunan field dibuat lebih renggang agar lebih mudah dipindai saat input manual.
+          </p>
+        </div>
+        <span class="metric-chip">{{ form_fields | length }} field wajib</span>
+      </div>
+      <div class="row g-4">
         {% for field in form_fields %}
-        <div class="col-md-4 mb-3">
-          <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
-          {% if field.type == 'select' %}
-          <select
-            class="form-select"
-            id="{{ field.name }}"
-            name="{{ field.name }}"
-            data-feature-field="true"
-            required
-          >
-            <option value="">Pilih {{ field.label }}</option>
-            {% for option in field.options %}
-            <option value="{{ option }}" {% if form_values[field.name] == option %}selected{% endif %}>
-              {{ option }}
-            </option>
-            {% endfor %}
-          </select>
-          {% else %}
-          <input
-            type="number"
-            step="any"
-            inputmode="numeric"
-            class="form-control"
-            id="{{ field.name }}"
-            name="{{ field.name }}"
-            value="{{ form_values[field.name] }}"
-            data-feature-field="true"
-            required
-          />
-          {% endif %}
+        <div class="col-md-6 col-xl-4">
+          <div class="field-shell">
+            <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+            {% if field.type == 'select' %}
+            <select
+              class="form-select"
+              id="{{ field.name }}"
+              name="{{ field.name }}"
+              data-feature-field="true"
+              required
+            >
+              <option value="">Pilih {{ field.label }}</option>
+              {% for option in field.options %}
+              <option value="{{ option }}" {% if form_values[field.name] == option %}selected{% endif %}>
+                {{ option }}
+              </option>
+              {% endfor %}
+            </select>
+            {% else %}
+            <input
+              type="number"
+              step="any"
+              inputmode="numeric"
+              class="form-control"
+              id="{{ field.name }}"
+              name="{{ field.name }}"
+              value="{{ form_values[field.name] }}"
+              data-feature-field="true"
+              required
+            />
+            {% endif %}
+          </div>
         </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
 
-    <button type="submit" class="btn btn-primary btn-lg w-100">Prediksi</button>
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary btn-lg px-4">Prediksi Sekarang</button>
+    </div>
   </form>
 </div>
 

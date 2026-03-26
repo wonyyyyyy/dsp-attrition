@@ -3,12 +3,23 @@ import re
 from pathlib import Path
 
 import joblib
-import mlflow
-import mlflow.sklearn
 import pandas as pd
 
 
+def _import_mlflow():
+    try:
+        import mlflow  # type: ignore
+        import mlflow.sklearn  # type: ignore
+        return mlflow
+    except Exception as exc:
+        raise RuntimeError(
+            "MLflow tidak bisa diimport di environment Python saat ini. "
+            "Gunakan Python versi kompatibel (disarankan 3.12) atau set MODEL_SOURCE=local."
+        ) from exc
+
+
 def _configure_tracking():
+    mlflow = _import_mlflow()
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "").strip()
     if tracking_uri:
         mlflow.set_tracking_uri(tracking_uri)
@@ -35,6 +46,7 @@ def _resolve_model_uri():
 
 
 def _run_id_from_uri(model_uri):
+    mlflow = _import_mlflow()
     if model_uri.startswith("runs:/"):
         match = re.match(r"^runs:/([^/]+)/", model_uri)
         if match:
@@ -62,11 +74,13 @@ def _run_id_from_uri(model_uri):
 
 
 def _download_run_artifact(run_id, relative_path):
+    mlflow = _import_mlflow()
     artifact_uri = f"runs:/{run_id}/artifacts/{relative_path}"
     return mlflow.artifacts.download_artifacts(artifact_uri=artifact_uri)
 
 
 def _load_model_from_run(run_id, preferred_model_uri=""):
+    mlflow = _import_mlflow()
     if preferred_model_uri:
         try:
             return mlflow.sklearn.load_model(preferred_model_uri)
@@ -89,6 +103,7 @@ def _load_model_from_run(run_id, preferred_model_uri=""):
 
 
 def _load_from_mlflow():
+    mlflow = _import_mlflow()
     _configure_tracking()
 
     model_uri = _resolve_model_uri()

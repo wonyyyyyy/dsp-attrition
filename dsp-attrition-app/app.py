@@ -4,6 +4,7 @@ import pandas as pd
 from dotenv import load_dotenv
 load_dotenv()
 from model_util import load_artifacts, predict_attrition
+from sheet_logger import append_prediction
 
 app = Flask(__name__)
 model = None
@@ -203,6 +204,8 @@ def build_template_context(**overrides):
         'paste_error': None,
         'result': None,
         'proba': None,
+        'save_status': None,
+        'save_error': None,
         'dataset_columns': DATASET_COLUMNS,
         'active_columns': feature_names,
         'ignored_columns': IGNORED_COLUMNS,
@@ -289,6 +292,23 @@ def predict():
         df_input = pd.DataFrame([form_values], columns=feature_names)
         prediction, proba = predict_attrition(df_input, model, scaler, label_encoders)
         result = "Attrition" if prediction == 1 else "No Attrition"
+        save_status = None
+        save_error = None
+        try:
+            saved, message = append_prediction(
+                form_values=form_values,
+                result=result,
+                proba=proba,
+                feature_names=feature_names,
+                source='web_form',
+                prediction_value=prediction,
+            )
+            if saved:
+                save_status = message
+            else:
+                save_error = message
+        except Exception as exc:
+            save_error = f"Gagal menyimpan ke spreadsheet: {exc}"
 
         return render_template(
             'predict_view.html',
@@ -297,6 +317,8 @@ def predict():
                 pasted_row=pasted_row,
                 result=result,
                 proba=proba,
+                save_status=save_status,
+                save_error=save_error,
             )
         )
 

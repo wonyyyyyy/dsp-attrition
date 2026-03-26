@@ -1,28 +1,71 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<section class="surface-card p-4 p-md-5 mb-4">
-  <div class="row align-items-center g-4">
-    <div class="col-lg-8">
-      <span class="badge text-bg-primary mb-3 px-3 py-2">Human Capital Intelligence</span>
-      <h1 class="display-5 fw-bold mb-3">Employee Attrition Analytics Platform</h1>
-      <p class="text-muted fs-5 mb-4">
-        Platform ini membantu tim HR menganalisis faktor utama attrition dan memprediksi risiko keluar karyawan
-        secara cepat, konsisten, dan berbasis data.
-      </p>
-      <div class="d-flex flex-wrap gap-2">
-        <a href="/dashboard" class="btn btn-primary btn-lg">Lihat Dashboard</a>
-        <a href="/predict" class="btn btn-outline-dark btn-lg">Coba Prediksi</a>
+<div class="page-stack">
+  <section class="surface-card surface-accent page-section">
+    <div class="row g-4 align-items-center">
+      <div class="col-xl-7">
+        <span class="eyebrow mb-3">Human Capital Intelligence</span>
+        <h1 class="hero-title text-balance">Employee Attrition Analytics Platform</h1>
+        <p class="hero-copy text-muted mb-4">
+          Platform ini membantu tim HR membaca pola attrition, mengenali faktor risiko utama, dan menjalankan
+          prediksi secara cepat melalui workflow yang lebih rapi dan mudah dipakai.
+        </p>
+        <div class="action-row">
+          <a href="/dashboard" class="btn btn-primary btn-lg">Lihat Dashboard</a>
+          <a href="/predict" class="btn btn-outline-primary btn-lg">Coba Prediksi</a>
+        </div>
+      </div>
+      <div class="col-xl-5">
+        <div class="subtle-panel">
+          <p class="panel-meta mb-3">Fokus Platform</p>
+          <ul class="info-list">
+            <li>
+              <span>Monitoring risiko attrition</span>
+              <strong>Menyeluruh</strong>
+            </li>
+            <li>
+              <span>Identifikasi driver attrition</span>
+              <strong>Data-driven</strong>
+            </li>
+            <li>
+              <span>Dukungan keputusan retensi</span>
+              <strong>Lebih cepat</strong>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div class="col-lg-4">
-      <div class="surface-card p-4 h-100" style="background: linear-gradient(165deg, #f8fbff, #eef4ff);">
-        <h5 class="fw-bold mb-3">Value Utama</h5>
-        <p class="text-muted mb-2">1. Monitoring risiko attrition secara menyeluruh.</p>
-        <p class="text-muted mb-2">2. Identifikasi driver attrition paling signifikan.</p>
-        <p class="text-muted mb-0">3. Dukungan pengambilan keputusan retensi SDM.</p>
-      </div>
+  </section>
+
+  <section class="row g-4">
+    <div class="col-md-4">
+      <article class="surface-card page-section feature-card h-100">
+        <span class="metric-chip mb-3">Analitik</span>
+        <h3 class="h5 mb-2">Dashboard yang lebih fokus</h3>
+        <p class="text-muted mb-0">
+          Ringkasan metrik dan visualisasi attrition ditempatkan dalam area yang lebih lega agar lebih nyaman dibaca.
+        </p>
+      </article>
     </div>
-  </div>
-</section>
+    <div class="col-md-4">
+      <article class="surface-card page-section feature-card h-100">
+        <span class="metric-chip mb-3">Prediksi</span>
+        <h3 class="h5 mb-2">Input data lebih terstruktur</h3>
+        <p class="text-muted mb-0">
+          Form prediksi mendukung paste otomatis sekaligus menjaga susunan field tetap rapi dan konsisten.
+        </p>
+      </article>
+    </div>
+    <div class="col-md-4">
+      <article class="surface-card page-section feature-card h-100">
+        <span class="metric-chip mb-3">UX</span>
+        <h3 class="h5 mb-2">Spacing yang lebih konsisten</h3>
+        <p class="text-muted mb-0">
+          Margin, padding, dan hierarchy visual diselaraskan agar halaman terasa lebih profesional dan mudah dipindai.
+        </p>
+      </article>
+    </div>
+  </section>
+</div>
 {% endblock %}

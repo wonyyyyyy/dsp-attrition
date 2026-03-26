@@ -8,3 +8,4 @@ xgboost
 joblib
 python-dotenv
 setuptools<81
+gspread==6.1.4

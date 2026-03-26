@@ -4,4 +4,5 @@
 !.env.example
 **/.env.*
 !**/.env.example
+langkah.md
 

@@ -1,1 +1,4 @@
 .vercel
+secret
+secret/google-service-account.json
+.env

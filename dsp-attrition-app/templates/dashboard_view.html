@@ -1,21 +1,48 @@
 {% extends "base.html" %}
 {% block title %}Dashboard Analitik{% endblock %}
 {% block content %}
-<section class="surface-card p-4 p-md-5">
-  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
-    <div>
-      <h2 class="mb-2 fw-bold">Laporan Analitik Karyawan</h2>
-      <p class="text-muted mb-0">
-        Ringkasan metrik attrition untuk membantu evaluasi pola dan perencanaan retensi karyawan.
+<div class="page-stack">
+  <section class="surface-card surface-accent page-section">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-8">
+        <span class="eyebrow mb-3">Dashboard Analitik</span>
+        <h1 class="section-title text-balance">Laporan Analitik Karyawan</h1>
+        <p class="section-copy text-muted mb-0">
+          Ringkasan metrik attrition disajikan dalam layout yang lebih lega agar evaluasi pola, risiko, dan tindak
+          lanjut retensi lebih mudah dilakukan.
+        </p>
+      </div>
+      <div class="col-lg-4">
+        <div class="subtle-panel">
+          <p class="panel-meta mb-3">Akses Cepat</p>
+          <p class="text-muted mb-3">
+            Lanjutkan ke halaman prediksi jika ingin menguji risiko attrition untuk satu karyawan secara langsung.
+          </p>
+          <a href="/predict" class="btn btn-outline-primary w-100">Ke Halaman Prediksi</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-card page-section">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+      <div>
+        <p class="panel-meta mb-2">Embedded Report</p>
+        <h2 class="h4 fw-bold mb-2">Looker Studio Dashboard</h2>
+        <p class="text-muted mb-0">
+          Tampilan dashboard ditempatkan di dalam card utama agar area visual tetap bersih dan fokus.
+        </p>
+      </div>
+      <span class="metric-chip">Responsive Embed</span>
+    </div>
+    <div class="iframe-wrapper mb-4">
+      <iframe src="https://lookerstudio.google.com/embed/reporting/6aa437f5-36c3-4fd3-a677-4e765d895fe1/page/gDlrF" frameborder="0" style="border: 0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+    </div>
+    <div class="subtle-panel">
+      <p class="mb-0 text-muted">
+        Catatan: Jika ingin memakai dashboard Anda sendiri, ekspor CSV ke Google Sheets lalu sambungkan ke Looker Studio.
       </p>
     </div>
-    <a href="/predict" class="btn btn-outline-primary">Ke Halaman Prediksi</a>
-  </div>
-  <div class="iframe-wrapper">
-    <iframe src="https://lookerstudio.google.com/embed/reporting/6aa437f5-36c3-4fd3-a677-4e765d895fe1/page/gDlrF" frameborder="0" style="border: 0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
-  </div>
-</section>
-<p class="text-muted mt-3 mb-0">
-  Catatan: Jika ingin memakai dashboard Anda sendiri, ekspor CSV ke Google Sheets lalu sambungkan ke Looker Studio.
-</p>
+  </section>
+</div>
 {% endblock %}
