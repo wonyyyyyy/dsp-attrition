@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 import os
 import pandas as pd
+from dotenv import load_dotenv
+load_dotenv()
 from model_util import load_artifacts, predict_attrition
 
 app = Flask(__name__)

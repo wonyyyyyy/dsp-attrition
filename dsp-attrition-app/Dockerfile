@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all files ke container
 COPY . .
 
-# Expose port untuk Railway
+# Expose port untuk Render
 EXPOSE 8000
 
 # Run Flask

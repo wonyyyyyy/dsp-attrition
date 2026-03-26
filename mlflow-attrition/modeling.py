@@ -79,7 +79,8 @@ def log_preprocessing_artifacts(scaler, label_encoders, feature_names, drop_cols
 def main():
     run_name, registered_model_name = configure_mlflow()
 
-    df = pd.read_csv("data/data_clean.csv")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    df = pd.read_csv(os.path.join(base_dir, "data", "data_clean.csv"))
     X, X_scaled, y, scaler, label_encoders, drop_cols, cat_cols = preprocess_data(df)
 
     X_train, X_test, y_train, y_test = train_test_split(

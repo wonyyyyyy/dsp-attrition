@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+*.pkl
+*.csv
+!employee_data_predicted_dashboard.csv
