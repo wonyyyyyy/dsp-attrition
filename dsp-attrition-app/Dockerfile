@@ -7,8 +7,9 @@ WORKDIR /app
 # Copy requirements
 COPY requirements.txt .
 
-# Install setuptools first (required by mlflow for pkg_resources)
-RUN pip install --no-cache-dir setuptools
+# Install setuptools first (mlflow still imports pkg_resources)
+RUN pip install --no-cache-dir "setuptools<81" \
+    && python -c "import pkg_resources"
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
