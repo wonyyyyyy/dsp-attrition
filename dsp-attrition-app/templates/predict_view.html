@@ -114,7 +114,7 @@
           <p class="panel-meta mb-2">Field Model</p>
           <h2 class="h4 fw-bold mb-2">Lengkapi seluruh input prediksi</h2>
           <p class="text-muted mb-0">
-            Semua field wajib diisi. Susunan field dibuat lebih renggang agar lebih mudah dipindai saat input manual.
+            Semua field wajib diisi. Input angka memakai placeholder rata-rata dari dataset awal agar lebih cepat saat input manual.
           </p>
         </div>
         <span class="metric-chip">{{ form_fields | length }} field wajib</span>
@@ -122,8 +122,13 @@
       <div class="row g-4">
         {% for field in form_fields %}
         <div class="col-md-6 col-xl-4">
-          <div class="field-shell">
-            <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+          <div class="field-shell" data-field-shell="{{ field.name }}">
+            <div class="field-label-row">
+              <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+              {% if field.description %}
+              <span class="field-label-help">{{ field.description }}</span>
+              {% endif %}
+            </div>
             {% if field.type == 'select' %}
             <select
               class="form-select"
@@ -140,6 +145,12 @@
               {% endfor %}
             </select>
             {% else %}
+            <div
+              class="field-popup"
+              id="{{ field.name }}-popup"
+              data-field-popup="{{ field.name }}"
+              aria-live="polite"
+            ></div>
             <input
               type="number"
               step="any"
@@ -148,6 +159,10 @@
               id="{{ field.name }}"
               name="{{ field.name }}"
               value="{{ form_values[field.name] }}"
+              placeholder="{{ field.placeholder }}"
+              title="{% if field.placeholder %}Rata-rata dataset awal: {{ field.placeholder }}{% endif %}"
+              {% if field.max %}max="{{ field.max }}"{% endif %}
+              data-field-label="{{ field.label }}"
               data-feature-field="true"
               required
             />
@@ -184,6 +199,9 @@
   const fillButton = document.getElementById("fill-from-paste");
   const featureFields = Object.fromEntries(
     Array.from(document.querySelectorAll("[data-feature-field='true']")).map((field) => [field.name, field])
+  );
+  const numericInputFields = Array.from(
+    document.querySelectorAll("input[data-feature-field='true'][type='number']")
   );
 
   function tokenizeRow(rawText) {
@@ -243,6 +261,49 @@
     pasteStatus.textContent = message;
   }
 
+  function setFieldPopup(field, message) {
+    const popup = document.querySelector(`[data-field-popup="${field.name}"]`);
+    const shell = field.closest("[data-field-shell]");
+    if (!popup || !shell) {
+      return;
+    }
+
+    if (message) {
+      popup.textContent = message;
+      popup.classList.add("is-visible");
+      shell.classList.add("field-over-limit");
+    } else {
+      popup.textContent = "";
+      popup.classList.remove("is-visible");
+      shell.classList.remove("field-over-limit");
+    }
+  }
+
+  function validateNumericField(field) {
+    const rawValue = field.value.trim();
+    const maxValue = field.getAttribute("max");
+
+    if (!rawValue || !maxValue) {
+      field.setCustomValidity("");
+      setFieldPopup(field, "");
+      return true;
+    }
+
+    const numericValue = Number(rawValue);
+    const numericMax = Number(maxValue);
+
+    if (Number.isNaN(numericValue) || Number.isNaN(numericMax) || numericValue <= numericMax) {
+      field.setCustomValidity("");
+      setFieldPopup(field, "");
+      return true;
+    }
+
+    const message = `Nilai maksimum yang bisa kamu isi di kolom ini adalah ${maxValue}.`;
+    field.setCustomValidity(message);
+    setFieldPopup(field, message);
+    return false;
+  }
+
   function fillFormFromRawText(rawText) {
     const values = tokenizeRow(rawText);
     if (!values.length) {
@@ -279,6 +340,9 @@
     activeColumns.forEach((column) => {
       if (featureFields[column] && Object.prototype.hasOwnProperty.call(mappedValues, column)) {
         featureFields[column].value = mappedValues[column];
+        if (featureFields[column].type === "number") {
+          validateNumericField(featureFields[column]);
+        }
       }
     });
 
@@ -294,6 +358,15 @@
 
   pastedRowField.addEventListener("paste", () => {
     window.setTimeout(() => fillFormFromRawText(pastedRowField.value), 0);
+  });
+
+  numericInputFields.forEach((field) => {
+    ["input", "change", "blur"].forEach((eventName) => {
+      field.addEventListener(eventName, () => {
+        validateNumericField(field);
+      });
+    });
+    validateNumericField(field);
   });
 </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import os
+from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,6 +18,18 @@ IGNORED_COLUMNS = []
 NUMERIC_FEATURES = set()
 COLUMN_VARIANTS = []
 FORM_FIELDS = []
+NUMERIC_PLACEHOLDERS = {}
+NUMERIC_MAX_VALUES = {}
+
+
+NUMERIC_MAX_OVERRIDES = {
+    'Age': 65,
+    'DistanceFromHome': 30,
+    'TotalWorkingYears': 45,
+    'YearsInCurrentRole': 20,
+    'YearsWithCurrManager': 20,
+    'NumCompaniesWorked': 10,
+}
 
 
 def model_is_loaded():
@@ -42,13 +55,14 @@ def ensure_model_loaded():
 
 
 def refresh_model_metadata():
-    global CATEGORICAL_OPTIONS, IGNORED_COLUMNS, NUMERIC_FEATURES, COLUMN_VARIANTS, FORM_FIELDS
+    global CATEGORICAL_OPTIONS, IGNORED_COLUMNS, NUMERIC_FEATURES, COLUMN_VARIANTS, FORM_FIELDS, NUMERIC_PLACEHOLDERS, NUMERIC_MAX_VALUES
     CATEGORICAL_OPTIONS = {
         name: list(encoder.classes_)
         for name, encoder in label_encoders.items()
     }
     IGNORED_COLUMNS = [col for col in DATASET_COLUMNS if col not in feature_names]
     NUMERIC_FEATURES = {name for name in feature_names if name not in label_encoders}
+    NUMERIC_PLACEHOLDERS, NUMERIC_MAX_VALUES = load_numeric_field_metadata()
     COLUMN_VARIANTS = [
         ('dataset asli', DATASET_COLUMNS),
         ('tanpa EmployeeId', DATASET_COLUMNS[1:]),
@@ -101,6 +115,98 @@ DATASET_COLUMNS = [
 ]
 
 
+FIELD_DESCRIPTIONS = {
+    'EmployeeId': 'Employee Identifier',
+    'Attrition': 'Did the employee attrition? (0=no, 1=yes)',
+    'Age': 'Age of the employee',
+    'BusinessTravel': 'Travel commitments for the job',
+    'DailyRate': 'Daily salary',
+    'Department': 'Employee Department',
+    'DistanceFromHome': 'Distance from work to home (in km)',
+    'Education': '1-Below College, 2-College, 3-Bachelor, 4-Master, 5-Doctor',
+    'EducationField': 'Field of Education',
+    'EnvironmentSatisfaction': '1-Low, 2-Medium, 3-High, 4-Very High',
+    'Gender': "Employee's gender",
+    'HourlyRate': 'Hourly salary',
+    'JobInvolvement': '1-Low, 2-Medium, 3-High, 4-Very High',
+    'JobLevel': 'Level of job (1 to 5)',
+    'JobRole': 'Job Roles',
+    'JobSatisfaction': '1-Low, 2-Medium, 3-High, 4-Very High',
+    'MaritalStatus': 'Marital Status',
+    'MonthlyIncome': 'Monthly salary',
+    'MonthlyRate': 'Monthly rate',
+    'NumCompaniesWorked': 'Number of companies worked at',
+    'Over18': 'Over 18 years of age?',
+    'OverTime': 'Overtime?',
+    'PercentSalaryHike': 'The percentage increase in salary last year',
+    'PerformanceRating': '1-Low, 2-Good, 3-Excellent, 4-Outstanding',
+    'RelationshipSatisfaction': '1-Low, 2-Medium, 3-High, 4-Very High',
+    'StandardHours': 'Standard Hours',
+    'StockOptionLevel': 'Stock Option Level',
+    'TotalWorkingYears': 'Total years worked',
+    'TrainingTimesLastYear': 'Number of training attended last year',
+    'WorkLifeBalance': '1-Low, 2-Good, 3-Excellent, 4-Outstanding',
+    'YearsAtCompany': 'Years at Company',
+    'YearsInCurrentRole': 'Years in the current role',
+    'YearsSinceLastPromotion': 'Years since the last promotion',
+    'YearsWithCurrManager': 'Years with the current manager',
+}
+
+
+def resolve_dataset_path():
+    app_dir = Path(__file__).resolve().parent
+    candidate_paths = [
+        app_dir.parent / 'employee_data.csv',
+        app_dir / 'employee_data.csv',
+    ]
+    for path in candidate_paths:
+        if path.exists():
+            return path
+    return None
+
+
+def format_numeric_placeholder(value):
+    if pd.isna(value):
+        return ''
+    return str(int(round(value)))
+
+
+def format_numeric_limit(value):
+    if pd.isna(value):
+        return ''
+    if float(value).is_integer():
+        return str(int(value))
+    return f"{value}".rstrip('0').rstrip('.')
+
+
+def load_numeric_field_metadata():
+    numeric_columns = [
+        name for name in feature_names
+        if name in NUMERIC_FEATURES and name in DATASET_COLUMNS
+    ]
+    if not numeric_columns:
+        return {}, {}
+
+    dataset_path = resolve_dataset_path()
+    if dataset_path is None:
+        return {}, {}
+
+    try:
+        df = pd.read_csv(dataset_path, usecols=numeric_columns)
+    except Exception:
+        return {}, {}
+
+    placeholders = {}
+    max_values = {}
+    for column in numeric_columns:
+        series = pd.to_numeric(df[column], errors='coerce')
+        if series.notna().any():
+            placeholders[column] = format_numeric_placeholder(series.mean())
+            max_value = NUMERIC_MAX_OVERRIDES.get(column, series.max())
+            max_values[column] = format_numeric_limit(max_value)
+    return placeholders, max_values
+
+
 def build_form_fields():
     fields = []
     for name in feature_names:
@@ -110,6 +216,9 @@ def build_form_fields():
                 'label': name,
                 'type': 'select',
                 'options': CATEGORICAL_OPTIONS[name],
+                'description': FIELD_DESCRIPTIONS.get(name, ''),
+                'placeholder': '',
+                'max': '',
             })
         else:
             fields.append({
@@ -117,6 +226,9 @@ def build_form_fields():
                 'label': name,
                 'type': 'number',
                 'options': [],
+                'description': FIELD_DESCRIPTIONS.get(name, ''),
+                'placeholder': NUMERIC_PLACEHOLDERS.get(name, ''),
+                'max': NUMERIC_MAX_VALUES.get(name, ''),
             })
     return fields
 
