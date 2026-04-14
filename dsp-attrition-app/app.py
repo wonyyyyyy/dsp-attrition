@@ -21,6 +21,11 @@ FORM_FIELDS = []
 NUMERIC_PLACEHOLDERS = {}
 NUMERIC_MAX_VALUES = {}
 
+IMPORTANCE_FEATURES = [
+    'OverTime', 'MonthlyIncome', 'JobSatisfaction', 'YearsAtCompany',
+    'DistanceFromHome', 'JobLevel', 'TotalWorkingYears',
+    'EnvironmentSatisfaction', 'StockOptionLevel', 'YearsWithCurrManager'
+]
 
 NUMERIC_MAX_OVERRIDES = {
     'Age': 65,
@@ -323,6 +328,7 @@ def build_template_context(**overrides):
         'ignored_columns': IGNORED_COLUMNS,
         'categorical_options': CATEGORICAL_OPTIONS,
         'numeric_fields': sorted(NUMERIC_FEATURES),
+        'importance_features': IMPORTANCE_FEATURES,
     }
     context.update(overrides)
     return context
@@ -387,6 +393,16 @@ def predict():
 
             for feature, value in parsed_values.items():
                 form_values[feature] = value
+
+        importance_mode = request.form.get('importance_mode') == 'true'
+        if importance_mode:
+            for field in FORM_FIELDS:
+                name = field['name']
+                if name not in IMPORTANCE_FEATURES and not form_values.get(name):
+                    if name in CATEGORICAL_OPTIONS and CATEGORICAL_OPTIONS[name]:
+                        form_values[name] = str(CATEGORICAL_OPTIONS[name][0])
+                    else:
+                        form_values[name] = str(NUMERIC_PLACEHOLDERS.get(name, '0') or '0')
 
         missing_fields = [
             field['label']

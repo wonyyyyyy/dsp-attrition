@@ -57,6 +57,7 @@
   {% endif %}
 
   <form method="POST" action="/predict" class="page-stack">
+    <input type="hidden" id="importance_mode" name="importance_mode" value="false">
     <div class="row g-4">
       <div class="col-xl-8">
         <section class="surface-card page-section h-100">
@@ -113,11 +114,17 @@
         <div>
           <p class="panel-meta mb-2">Field Model</p>
           <h2 class="h4 fw-bold mb-2">Lengkapi seluruh input prediksi</h2>
-          <p class="text-muted mb-0">
+          <p class="text-muted mb-0" id="form-description">
             Semua field wajib diisi. Input angka memakai placeholder rata-rata dari dataset awal agar lebih cepat saat input manual.
           </p>
         </div>
-        <span class="metric-chip">{{ form_fields | length }} field wajib</span>
+        <div class="d-flex flex-column align-items-end gap-2">
+          <span class="metric-chip" id="metric-chip-fields">{{ form_fields | length }} field wajib</span>
+          <div class="form-check form-switch mt-2 d-flex align-items-center gap-2">
+            <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggle-importance-mode" style="width: 2.5em; height: 1.25em; cursor: pointer;">
+            <label class="form-check-label fw-bold text-primary mb-0" style="cursor: pointer; user-select: none;" for="toggle-importance-mode">Hanya Feature Penting</label>
+          </div>
+        </div>
       </div>
       <div class="row g-4">
         {% for field in form_fields %}
@@ -184,7 +191,8 @@
     "datasetColumns": dataset_columns,
     "activeColumns": active_columns,
     "categoricalOptions": categorical_options,
-    "numericFields": numeric_fields
+    "numericFields": numeric_fields,
+    "importanceFeatures": importance_features
   } | tojson }}
 </script>
 
@@ -194,15 +202,52 @@
   const activeColumns = predictPageData.activeColumns;
   const categoricalOptions = predictPageData.categoricalOptions;
   const numericFields = new Set(predictPageData.numericFields);
+  const importanceFeatures = predictPageData.importanceFeatures || [];
   const pastedRowField = document.getElementById("pasted_row");
   const pasteStatus = document.getElementById("paste-status");
   const fillButton = document.getElementById("fill-from-paste");
+  const importanceModeInput = document.getElementById("importance_mode");
+  const toggleImportanceModeBtn = document.getElementById("toggle-importance-mode");
+  const metricChipFields = document.getElementById("metric-chip-fields");
+  const formDescription = document.getElementById("form-description");
+
   const featureFields = Object.fromEntries(
     Array.from(document.querySelectorAll("[data-feature-field='true']")).map((field) => [field.name, field])
   );
   const numericInputFields = Array.from(
     document.querySelectorAll("input[data-feature-field='true'][type='number']")
   );
+
+  if (toggleImportanceModeBtn) {
+    toggleImportanceModeBtn.addEventListener("change", (e) => {
+      const isImportantOnly = e.target.checked;
+      importanceModeInput.value = isImportantOnly ? 'true' : 'false';
+      let visibleCount = 0;
+      
+      Object.keys(featureFields).forEach(col => {
+        const field = featureFields[col];
+        const container = field.closest('.col-md-6');
+        if (!container) return;
+        
+        if (isImportantOnly && !importanceFeatures.includes(col)) {
+          container.style.display = 'none';
+          field.removeAttribute('required');
+        } else {
+          container.style.display = '';
+          field.setAttribute('required', 'required');
+          visibleCount++;
+        }
+      });
+      
+      if (isImportantOnly) {
+        metricChipFields.textContent = visibleCount + ' feature penting';
+        formDescription.textContent = 'Hanya menampilkan fitur yang paling berpengaruh terhadap attrition. Fitur lain akan otomatis diisi dengan nilai rata-rata/bawaan dari dataset.';
+      } else {
+        metricChipFields.textContent = Object.keys(featureFields).length + ' field wajib';
+        formDescription.textContent = 'Semua field wajib diisi. Input angka memakai placeholder rata-rata dari dataset awal agar lebih cepat saat input manual.';
+      }
+    });
+  }
 
   function tokenizeRow(rawText) {
     const normalizedText = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
