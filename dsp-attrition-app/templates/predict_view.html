@@ -5,7 +5,7 @@
   <section class="surface-card surface-accent page-section">
     <div class="row g-4 align-items-start">
       <div class="col-lg-8">
-        <span class="eyebrow mb-3">Prediksi Attrition</span>
+        <span class="eyebrow mb-3 d-inline-flex">Prediksi Attrition</span>
         <h1 class="section-title text-balance">Form Prediksi Karyawan</h1>
         <p class="section-copy text-muted mb-0">
           Paste satu baris data sesuai urutan kolom dataset asli atau isi field secara manual. Semua elemen halaman
@@ -64,7 +64,7 @@
           <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
             <div>
               <p class="panel-meta mb-2">Paste Data</p>
-              <h2 class="h4 fw-bold mb-2">Isi otomatis dari satu baris data</h2>
+              <h2 class="h4 fw-bold mb-2" style="color:#fff;">Isi otomatis dari satu baris data</h2>
               <p class="text-muted mb-0">
                 Mendukung dataset asli, versi tanpa <code>EmployeeId</code>, tanpa <code>Attrition</code>, atau langsung field aktif model.
               </p>
@@ -96,11 +96,11 @@
         <section class="surface-card page-section h-100">
           <p class="panel-meta mb-3">Metadata Form</p>
           <div class="subtle-panel mb-3">
-            <h3 class="h6 fw-bold mb-2">Kolom yang diabaikan model</h3>
+            <h3 class="h6 fw-bold mb-2" style="color:#fff;">Kolom yang diabaikan model</h3>
             <p class="text-muted small mb-0">{{ ignored_columns | join(', ') }}</p>
           </div>
           <div class="subtle-panel">
-            <h3 class="h6 fw-bold mb-2">Format yang diterima</h3>
+            <h3 class="h6 fw-bold mb-2" style="color:#fff;">Format yang diterima</h3>
             <p class="text-muted small mb-0">
               Dataset penuh, tanpa <code>EmployeeId</code>, tanpa <code>Attrition</code>, atau field aktif model.
             </p>
@@ -113,7 +113,7 @@
       <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
         <div>
           <p class="panel-meta mb-2">Field Model</p>
-          <h2 class="h4 fw-bold mb-2">Lengkapi seluruh input prediksi</h2>
+          <h2 class="h4 fw-bold mb-2" style="color:#fff;">Lengkapi seluruh input prediksi</h2>
           <p class="text-muted mb-0" id="form-description">
             Semua field wajib diisi. Input angka memakai placeholder rata-rata dari dataset awal agar lebih cepat saat input manual.
           </p>
@@ -122,7 +122,7 @@
           <span class="metric-chip" id="metric-chip-fields">{{ form_fields | length }} field wajib</span>
           <div class="form-check form-switch mt-2 d-flex align-items-center gap-2">
             <input class="form-check-input mt-0" type="checkbox" role="switch" id="toggle-importance-mode" style="width: 2.5em; height: 1.25em; cursor: pointer;">
-            <label class="form-check-label fw-bold text-primary mb-0" style="cursor: pointer; user-select: none;" for="toggle-importance-mode">Hanya Feature Penting</label>
+            <label class="form-check-label fw-bold mb-0" style="cursor:pointer;user-select:none;color:var(--red);" for="toggle-importance-mode">Hanya Feature Penting</label>
           </div>
         </div>
       </div>

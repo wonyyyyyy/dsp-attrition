@@ -1,48 +1,112 @@
 {% extends "base.html" %}
-{% block title %}Dashboard Analitik{% endblock %}
+{% block title %}Dashboard Analitik — DS-HAKIM{% endblock %}
 {% block content %}
 <div class="page-stack">
+
+  <!-- HERO HEADER -->
   <section class="surface-card surface-accent page-section">
     <div class="row g-4 align-items-center">
       <div class="col-lg-8">
-        <span class="eyebrow mb-3">Dashboard Analitik</span>
-        <h1 class="section-title text-balance">Laporan Analitik Karyawan</h1>
-        <p class="section-copy text-muted mb-0">
-          Ringkasan metrik attrition disajikan dalam layout yang lebih lega agar evaluasi pola, risiko, dan tindak
-          lanjut retensi lebih mudah dilakukan.
+        <span class="eyebrow mb-4 d-inline-flex">Dashboard Analitik</span>
+        <h1 class="section-title text-balance mb-2">Laporan Analitik Karyawan</h1>
+        <div class="section-divider"></div>
+        <p class="section-copy mb-0">
+          Ringkasan metrik attrition disajikan langsung melalui Looker Studio untuk evaluasi pola, 
+          identifikasi risiko, dan perencanaan retensi berbasis data.
         </p>
       </div>
       <div class="col-lg-4">
         <div class="subtle-panel">
           <p class="panel-meta mb-3">Akses Cepat</p>
-          <p class="text-muted mb-3">
-            Lanjutkan ke halaman prediksi jika ingin menguji risiko attrition untuk satu karyawan secara langsung.
+          <p class="text-muted mb-4" style="font-size:0.88rem;line-height:1.7;">
+            Lanjutkan ke halaman prediksi untuk menguji risiko attrition satu karyawan secara langsung dan instan.
           </p>
-          <a href="/predict" class="btn btn-outline-primary w-100">Ke Halaman Prediksi</a>
+          <a href="/predict" class="btn btn-primary w-100">
+            Prediksi Sekarang
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="ms-2" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- STAT CHIPS -->
+  <div class="row g-3">
+    <div class="col-sm-6 col-lg-3">
+      <div class="surface-card page-section text-center h-100" style="padding:1.35rem;">
+        <p class="panel-meta mb-2">Model ROC-AUC</p>
+        <p class="mb-0" style="font-size:2rem;font-weight:800;color:var(--red);font-family:'Space Grotesk',sans-serif;">0.8038</p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;margin-top:0.25rem;">Logistic Regression</p>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="surface-card page-section text-center h-100" style="padding:1.35rem;">
+        <p class="panel-meta mb-2">Top Feature</p>
+        <p class="mb-0" style="font-size:1.35rem;font-weight:800;color:#fff;font-family:'Space Grotesk',sans-serif;">OverTime</p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;margin-top:0.25rem;">Avg. Importance 0.087</p>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="surface-card page-section text-center h-100" style="padding:1.35rem;">
+        <p class="panel-meta mb-2">Feature Aktif</p>
+        <p class="mb-0" style="font-size:2rem;font-weight:800;color:#fff;font-family:'Space Grotesk',sans-serif;">30</p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;margin-top:0.25rem;">Kolom input model</p>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="surface-card page-section text-center h-100" style="padding:1.35rem;">
+        <p class="panel-meta mb-2">Feature Penting</p>
+        <p class="mb-0" style="font-size:2rem;font-weight:800;color:var(--red);font-family:'Space Grotesk',sans-serif;">10</p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;margin-top:0.25rem;">Mode prediksi cepat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOOKER STUDIO EMBED -->
   <section class="surface-card page-section">
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
       <div>
         <p class="panel-meta mb-2">Embedded Report</p>
-        <h2 class="h4 fw-bold mb-2">Looker Studio Dashboard</h2>
-        <p class="text-muted mb-0">
-          Tampilan dashboard ditempatkan di dalam card utama agar area visual tetap bersih dan fokus.
+        <h2 class="h4 fw-bold mb-1" style="color:#fff;">Looker Studio Dashboard</h2>
+        <p class="text-muted mb-0" style="font-size:0.88rem;">
+          Visualisasi data attrition yang hidup & interaktif, terhubung langsung ke sumber data Anda.
         </p>
       </div>
-      <span class="metric-chip">Responsive Embed</span>
+      <span class="metric-chip">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="var(--red)" viewBox="0 0 16 16">
+          <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+          <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+        </svg>
+        Live Data
+      </span>
     </div>
+
     <div class="iframe-wrapper mb-4">
-      <iframe src="https://lookerstudio.google.com/embed/reporting/6aa437f5-36c3-4fd3-a677-4e765d895fe1/page/gDlrF" frameborder="0" style="border: 0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+      <iframe
+        src="https://lookerstudio.google.com/embed/reporting/6aa437f5-36c3-4fd3-a677-4e765d895fe1/page/gDlrF"
+        frameborder="0"
+        style="border:0;"
+        allowfullscreen
+        sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      ></iframe>
     </div>
+
     <div class="subtle-panel">
-      <p class="mb-0 text-muted">
-        Catatan: Jika ingin memakai dashboard Anda sendiri, ekspor CSV ke Google Sheets lalu sambungkan ke Looker Studio.
-      </p>
+      <div class="d-flex align-items-start gap-3">
+        <div style="width:32px;height:32px;background:var(--red-soft);border:1px solid var(--red-border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--red)" viewBox="0 0 16 16">
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+          </svg>
+        </div>
+        <p class="mb-0 text-muted" style="font-size:0.88rem;line-height:1.7;">
+          <strong style="color:var(--ink);">Catatan:</strong> Jika ingin menggunakan dashboard Anda sendiri, ekspor hasil prediksi ke Google Sheets 
+          lalu sambungkan sebagai sumber data di Looker Studio dan tempel URL embed di kode aplikasi ini.
+        </p>
+      </div>
     </div>
   </section>
+
 </div>
 {% endblock %}
