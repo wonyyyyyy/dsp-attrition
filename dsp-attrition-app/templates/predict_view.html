@@ -162,6 +162,7 @@
               type="number"
               step="any"
               inputmode="numeric"
+              min="0"
               class="form-control"
               id="{{ field.name }}"
               name="{{ field.name }}"
@@ -181,7 +182,7 @@
     </section>
 
     <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-primary btn-lg px-4">Prediksi Sekarang</button>
+      <button type="submit" id="submit-predict-btn" class="btn btn-primary btn-lg px-4">Prediksi Sekarang</button>
     </div>
   </form>
 </div>
@@ -306,6 +307,21 @@
     pasteStatus.textContent = message;
   }
 
+  const submitBtn = document.getElementById("submit-predict-btn");
+
+  function updateSubmitButton() {
+    const hasInvalid = numericInputFields.some(
+      (field) => field.dataset.invalid === "true"
+    );
+    if (hasInvalid) {
+      submitBtn.disabled = true;
+      submitBtn.title = "Perbaiki input yang tidak valid sebelum prediksi.";
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.title = "";
+    }
+  }
+
   function setFieldPopup(field, message) {
     const popup = document.querySelector(`[data-field-popup="${field.name}"]`);
     const shell = field.closest("[data-field-shell]");
@@ -317,36 +333,54 @@
       popup.textContent = message;
       popup.classList.add("is-visible");
       shell.classList.add("field-over-limit");
+      field.dataset.invalid = "true";
     } else {
       popup.textContent = "";
       popup.classList.remove("is-visible");
       shell.classList.remove("field-over-limit");
+      field.dataset.invalid = "false";
     }
+    updateSubmitButton();
   }
 
   function validateNumericField(field) {
     const rawValue = field.value.trim();
-    const maxValue = field.getAttribute("max");
 
-    if (!rawValue || !maxValue) {
+    if (!rawValue) {
       field.setCustomValidity("");
       setFieldPopup(field, "");
       return true;
     }
 
     const numericValue = Number(rawValue);
-    const numericMax = Number(maxValue);
 
-    if (Number.isNaN(numericValue) || Number.isNaN(numericMax) || numericValue <= numericMax) {
-      field.setCustomValidity("");
-      setFieldPopup(field, "");
-      return true;
+    if (Number.isNaN(numericValue)) {
+      field.setCustomValidity("Nilai harus berupa angka.");
+      setFieldPopup(field, "Nilai harus berupa angka.");
+      return false;
     }
 
-    const message = `Nilai maksimum yang bisa kamu isi di kolom ini adalah ${maxValue}.`;
-    field.setCustomValidity(message);
-    setFieldPopup(field, message);
-    return false;
+    if (numericValue < 0) {
+      const message = "Nilai tidak boleh kurang dari 0.";
+      field.setCustomValidity(message);
+      setFieldPopup(field, message);
+      return false;
+    }
+
+    const maxValue = field.getAttribute("max");
+    if (maxValue) {
+      const numericMax = Number(maxValue);
+      if (!Number.isNaN(numericMax) && numericValue > numericMax) {
+        const message = `Nilai maksimum yang bisa kamu isi di kolom ini adalah ${maxValue}.`;
+        field.setCustomValidity(message);
+        setFieldPopup(field, message);
+        return false;
+      }
+    }
+
+    field.setCustomValidity("");
+    setFieldPopup(field, "");
+    return true;
   }
 
   function fillFormFromRawText(rawText) {

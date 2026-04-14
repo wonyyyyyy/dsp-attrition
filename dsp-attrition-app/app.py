@@ -22,9 +22,16 @@ NUMERIC_PLACEHOLDERS = {}
 NUMERIC_MAX_VALUES = {}
 
 IMPORTANCE_FEATURES = [
-    'OverTime', 'MonthlyIncome', 'JobSatisfaction', 'YearsAtCompany',
-    'DistanceFromHome', 'JobLevel', 'TotalWorkingYears',
-    'EnvironmentSatisfaction', 'StockOptionLevel', 'YearsWithCurrManager'
+    'OverTime',               # Lembur: yes/no, sangat individual
+    'YearsAtCompany',         # Lama di perusahaan ini
+    'TotalWorkingYears',      # Total pengalaman kerja
+    'YearsInCurrentRole',     # Lama di posisi sekarang
+    'YearsSinceLastPromotion',# Lama sejak promosi terakhir
+    'YearsWithCurrManager',   # Lama dengan manajer saat ini
+    'EnvironmentSatisfaction',# Kepuasan lingkungan kerja (subjektif)
+    'JobInvolvement',         # Tingkat keterlibatan kerja (subjektif)
+    'MonthlyIncome',          # Gaji bulanan (sangat variatif)
+    'MaritalStatus',          # Status pernikahan (kategorikal)
 ]
 
 NUMERIC_MAX_OVERRIDES = {
@@ -416,6 +423,25 @@ def predict():
                     form_values=form_values,
                     pasted_row=pasted_row,
                     paste_error='Masih ada field kosong. Lengkapi semua input sebelum prediksi.',
+                )
+            )
+
+        negative_fields = []
+        for field in FORM_FIELDS:
+            name = field['name']
+            if name in NUMERIC_FEATURES:
+                try:
+                    if float(form_values[name]) < 0:
+                        negative_fields.append(field['label'])
+                except (ValueError, TypeError):
+                    pass
+        if negative_fields:
+            return render_template(
+                'predict_view.html',
+                **build_template_context(
+                    form_values=form_values,
+                    pasted_row=pasted_row,
+                    paste_error=f'Nilai tidak boleh negatif: {", ".join(negative_fields)}.',
                 )
             )
 
