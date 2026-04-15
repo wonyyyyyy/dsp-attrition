@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import os
+import threading
 from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
@@ -448,23 +449,26 @@ def predict():
         df_input = pd.DataFrame([form_values], columns=feature_names)
         prediction, proba = predict_attrition(df_input, model, scaler, label_encoders)
         result = "Attrition" if prediction == 1 else "No Attrition"
-        save_status = None
+        # Simpan ke Google Sheets di background — tidak memblokir response prediksi
+        sheets_enabled = os.getenv('GOOGLE_SHEETS_ENABLED', 'false').strip().lower() in {'1', 'true', 'yes', 'on'}
+        def _save_async():
+            try:
+                append_prediction(
+                    form_values=form_values,
+                    result=result,
+                    proba=proba,
+                    feature_names=feature_names,
+                    source='web_form',
+                    prediction_value=prediction,
+                )
+            except Exception:
+                pass
+        if sheets_enabled:
+            threading.Thread(target=_save_async, daemon=True).start()
+            save_status = "Hasil prediksi sedang disimpan ke Google Spreadsheet."
+        else:
+            save_status = None
         save_error = None
-        try:
-            saved, message = append_prediction(
-                form_values=form_values,
-                result=result,
-                proba=proba,
-                feature_names=feature_names,
-                source='web_form',
-                prediction_value=prediction,
-            )
-            if saved:
-                save_status = message
-            else:
-                save_error = message
-        except Exception as exc:
-            save_error = f"Gagal menyimpan ke spreadsheet: {exc}"
 
         return render_template(
             'predict_view.html',
