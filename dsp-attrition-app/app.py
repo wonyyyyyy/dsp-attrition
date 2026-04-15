@@ -22,16 +22,16 @@ NUMERIC_PLACEHOLDERS = {}
 NUMERIC_MAX_VALUES = {}
 
 IMPORTANCE_FEATURES = [
-    'OverTime',               # Lembur: yes/no, sangat individual
-    'YearsAtCompany',         # Lama di perusahaan ini
-    'TotalWorkingYears',      # Total pengalaman kerja
-    'YearsInCurrentRole',     # Lama di posisi sekarang
-    'YearsSinceLastPromotion',# Lama sejak promosi terakhir
-    'YearsWithCurrManager',   # Lama dengan manajer saat ini
-    'EnvironmentSatisfaction',# Kepuasan lingkungan kerja (subjektif)
-    'JobInvolvement',         # Tingkat keterlibatan kerja (subjektif)
-    'MonthlyIncome',          # Gaji bulanan (sangat variatif)
-    'MaritalStatus',          # Status pernikahan (kategorikal)
+    'OverTime',               # #1 tree + #2 LR — konsensus paling kuat
+    'MonthlyIncome',          # #2 tree — kompensasi, mudah diketahui
+    'StockOptionLevel',       # #3 tree — insentif saham
+    'Age',                    # #4 tree — mudah diisi
+    'JobLevel',               # #6 tree — level jabatan jelas
+    'TotalWorkingYears',      # #7 tree + #1 LR protective
+    'EnvironmentSatisfaction',# #9 tree + #3 LR — konsensus kedua model
+    'YearsAtCompany',         # #11 tree + #1 LR risk — sangat individual
+    'YearsInCurrentRole',     # #18 tree + #2 LR — stagnansi posisi
+    'MaritalStatus',          # LR signifikan — kategorikal, mudah diisi
 ]
 
 NUMERIC_MAX_OVERRIDES = {
